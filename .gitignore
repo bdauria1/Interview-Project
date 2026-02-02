@@ -1,0 +1,12 @@
+# Python
+venv/
+**/venv/
+__pycache__/
+*.py[cod]
+pyvenv.cfg
+
+# Node & tooling
+node_modules/
+node_modules/.cache/prettier/
+.prettier-cache
+.cache/
