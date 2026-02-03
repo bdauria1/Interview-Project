@@ -10,3 +10,6 @@ node_modules/
 node_modules/.cache/prettier/
 .prettier-cache
 .cache/
+
+#env
+.env
