@@ -1,5 +1,5 @@
 from pydantic import BaseModel, ConfigDict
-from typing import Dict, Any
+from typing import Dict
 from .object_detection import ObjectDetectionBase
 from .molding_machine_state import MoldingMachineStateBase
 from datetime import datetime
