@@ -51,8 +51,8 @@ class AnalyticsRepository:
         for row in result:
             defect_rate = (row.defect_count / row.total_count * 100) if row.total_count > 0 else 0.0
             trends.append({
-                "period": row.period,
-                "total_inspections": row.total_count,
+                "timestamp": row.period.isoformat(),
+                "total_count": row.total_count,
                 "defect_count": row.defect_count,
                 "defect_rate": round(defect_rate, 2),
             })
@@ -95,7 +95,7 @@ class AnalyticsRepository:
         for row in result:
             defect_rate = (row.defects / row.total * 100) if row.total > 0 else 0.0
             machines.append({
-                "molding_machine_id": row.molding_machine_id,
+                "machine_id": row.molding_machine_id,
                 "avg_cycle_time": round(row.avg_cycle, 2) if row.avg_cycle else None,
                 "avg_injection_pressure": round(row.avg_pressure, 2) if row.avg_pressure else None,
                 "avg_barrel_temp": round(row.avg_temp, 2) if row.avg_temp else None,
