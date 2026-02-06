@@ -115,7 +115,7 @@ const chartOptions: ChartOptions<any> = {
       },
       title: {
         display: true,
-        text: 'Secondary Metric',
+        text: 'Percentage (%)',
         color: '#ffffff',
         font: { weight: 'bold', size: 12 }
       }
