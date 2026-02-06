@@ -47,8 +47,12 @@ KREVERA is an industrial analytics dashboard designed to visualize product inspe
 ### 2. Frontend Setup
 1.  **Navigate to the client directory**:
     ```bash
-    cd client
+    cd Frontend
     ```
+2.  **Set the API connection**:
+    Create a `.env` file in the frontend root:
+    ```env
+    VITE_API_URL=http://127.0.0.1:8000
 2.  **Install Dependencies**:
     ```bash
     npm install

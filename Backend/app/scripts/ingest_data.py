@@ -12,7 +12,7 @@ from datetime import datetime
 from typing import Any, List, Optional
 from urllib.request import urlopen, Request
 from app.schemas.project_inspection import ProjectInspectionBase
-from app.core.database import get_session
+from app.core.database import get_db
 from app.models.product_inspection import ProductInspection
 from app.models.molding_machine_state import MoldingMachineState
 from app.models.object_detection import ObjectDetection
@@ -204,4 +204,10 @@ if __name__ == "__main__":
     parser.add_argument("--url", help="Dataset URL (overrides DATASET_URL)")
     args = parser.parse_args()
 
-    results = ingest_from_url(args.url)
+    db_gen = get_db()
+    db_session = next(db_gen)
+
+    try:
+        results = ingest_from_url(args.url, db_session=db_session)
+    finally:
+        db_session.close()
