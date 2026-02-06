@@ -28,12 +28,15 @@ class AnalyticsRepository:
         end_date: Optional[datetime] = None, 
         machine_id: Optional[str] = None
     ) -> List[Dict[str, Any]]:
-        has_defects_subq = self._get_has_defects_subquery()
-        
-        query = select(
-            func.date_trunc(grouping, ProductInspection.timestamp).label("period"),
-            func.count(ProductInspection.id).label("total_count"),
-            func.sum(case((has_defects_subq > 0, 1), else_=0)).label("defect_count"),
+        query = (
+            select(
+                func.date_trunc(grouping, ProductInspection.timestamp).label("period"),
+                func.count(func.distinct(ProductInspection.id)).label("total_count"),
+                func.count(func.distinct(Defect.id)).label("defect_count"),
+            )
+            .select_from(ProductInspection)
+            .join(ObjectDetection, ProductInspection.id == ObjectDetection.inspection_id, isouter=True)
+            .join(Defect, ObjectDetection.id == Defect.object_detection_id, isouter=True)
         )
         
         conditions = []
@@ -47,24 +50,20 @@ class AnalyticsRepository:
         query = query.group_by("period").order_by("period")
         result = self.db.execute(query).all()
         
-        trends = []
-        for row in result:
-            defect_rate = (row.defect_count / row.total_count * 100) if row.total_count > 0 else 0.0
-            trends.append({
+        return [
+            {
                 "timestamp": row.period.isoformat(),
                 "total_count": row.total_count,
                 "defect_count": row.defect_count,
-                "defect_rate": round(defect_rate, 2),
-            })
-        return trends
+                "defect_rate": round((row.defect_count / row.total_count * 100), 2) if row.total_count > 0 else 0.0,
+            } for row in result
+        ]
 
     def get_machine_performance(
         self, 
         start_date: Optional[datetime] = None, 
         end_date: Optional[datetime] = None
     ) -> List[Dict[str, Any]]:
-        defect_count_subq = self._get_has_defects_subquery()
-        
         query = (
             select(
                 ProductInspection.molding_machine_id,
@@ -75,10 +74,13 @@ class AnalyticsRepository:
                     MoldingMachineState.Barrel3 + MoldingMachineState.Barrel4 + 
                     MoldingMachineState.Barrel5 + MoldingMachineState.Barrel6
                 ) / 6.0).label("avg_temp"),
-                func.count(ProductInspection.id).label("total"),
-                func.sum(case((defect_count_subq > 0, 1), else_=0)).label("defects"),
+                func.count(func.distinct(ProductInspection.id)).label("total"),
+                func.count(func.distinct(Defect.id)).label("defects"),
             )
+            .select_from(ProductInspection)
             .join(MoldingMachineState, ProductInspection.id == MoldingMachineState.inspection_id, isouter=True)
+            .join(ObjectDetection, ProductInspection.id == ObjectDetection.inspection_id, isouter=True)
+            .join(Defect, ObjectDetection.id == Defect.object_detection_id, isouter=True)
         )
         
         conditions = []
@@ -91,19 +93,17 @@ class AnalyticsRepository:
         query = query.group_by(ProductInspection.molding_machine_id).order_by(ProductInspection.molding_machine_id)
         result = self.db.execute(query).all()
         
-        machines = []
-        for row in result:
-            defect_rate = (row.defects / row.total * 100) if row.total > 0 else 0.0
-            machines.append({
+        return [
+            {
                 "machine_id": row.molding_machine_id,
                 "avg_cycle_time": round(row.avg_cycle, 2) if row.avg_cycle else None,
                 "avg_injection_pressure": round(row.avg_pressure, 2) if row.avg_pressure else None,
                 "avg_barrel_temp": round(row.avg_temp, 2) if row.avg_temp else None,
                 "total_inspections": row.total,
-                "defect_count": row.defects or 0,
-                "defect_rate": round(defect_rate, 2),
-            })
-        return machines
+                "defect_count": row.defects,
+                "defect_rate": round((row.defects / row.total * 100), 2) if row.total > 0 else 0.0,
+            } for row in result
+        ]
 
     def get_defect_distribution(
         self, 
@@ -143,14 +143,17 @@ class AnalyticsRepository:
         start_date: Optional[datetime] = None, 
         end_date: Optional[datetime] = None
     ) -> Dict[str, Any]:
-        defect_count_subq = self._get_has_defects_subquery()
-        
-        query = select(
-            func.count(ProductInspection.id).label("total_inspections"),
-            func.sum(case((defect_count_subq > 0, 1), else_=0)).label("total_defects"),
-            func.count(func.distinct(ProductInspection.molding_machine_id)).label("total_machines"),
-            func.min(ProductInspection.timestamp).label("date_start"),
-            func.max(ProductInspection.timestamp).label("date_end"),
+        query = (
+            select(
+                func.count(func.distinct(ProductInspection.id)).label("total_inspections"),
+                func.count(func.distinct(Defect.id)).label("total_defects"),
+                func.count(func.distinct(ProductInspection.molding_machine_id)).label("total_machines"),
+                func.min(ProductInspection.timestamp).label("date_start"),
+                func.max(ProductInspection.timestamp).label("date_end"),
+            )
+            .select_from(ProductInspection)
+            .join(ObjectDetection, ProductInspection.id == ObjectDetection.inspection_id, isouter=True)
+            .join(Defect, ObjectDetection.id == Defect.object_detection_id, isouter=True)
         )
         
         conditions = []

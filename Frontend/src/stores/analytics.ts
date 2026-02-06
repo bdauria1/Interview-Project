@@ -82,11 +82,20 @@ export const useAnalyticsStore = defineStore('analytics', () => {
   }
 
   async function fetchAllAnalytics() {
-    await Promise.all([
-      fetchDefectTrends(),
-      fetchMachinePerformance(),
-      fetchDefectDistribution(),
-    ])
+    try {
+      loading.value = true
+      error.value = null
+      
+      await Promise.all([
+        fetchDefectTrends(),
+        fetchMachinePerformance(),
+        fetchDefectDistribution(),
+      ])
+    } catch (e) {
+      error.value = 'Failed to sync dashboard'
+    } finally {
+      loading.value = false
+    }
   }
 
   function updateFilters(newFilters: Partial<AnalyticsFilters>) {

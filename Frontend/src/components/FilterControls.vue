@@ -95,10 +95,6 @@ function handleDateChange() {
                 class="inline-flex items-center justify-center px-8 h-[42px] text-[10px] font-bold uppercase tracking-widest text-white bg-[#059669] hover:bg-emerald-500 rounded-lg transition-all active:scale-95 whitespace-nowrap">
           Execute Analysis
         </button>
-        <button @click="localStartDate=null; localEndDate=null; localMachineId=''; emit('refresh')" 
-                class="text-[10px] font-bold uppercase tracking-widest text-white hover:text-white transition-all">
-          Reset
-        </button>
       </div>
     </div>
   </div>
