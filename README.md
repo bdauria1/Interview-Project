@@ -1,7 +1,3 @@
-# KREVERA | Intelligence Layer
-
-KREVERA is an industrial analytics dashboard designed to visualize product inspection data, machine performance, and defect distributions in real-time. It provides a "High-Intelligence Layer" for manufacturing environments, helping operators identify trends and optimize production quality.
-
 ## Features
 
 * **Defect Analysis**: Time-series visualization of defect counts with configurable grouping (hour, day, week).
