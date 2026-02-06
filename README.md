@@ -22,7 +22,7 @@ KREVERA is an industrial analytics dashboard designed to visualize product inspe
     cd Backend
     ```
 2.  **Set the Dataset/Database URL**:
-    Create a `.env` file in the backend root:
+    Create the database and a `.env` file in the backend root:
     ```env
     DATABASE_URL=postgresql://user:password@localhost:5432/krevera_db
     ```
