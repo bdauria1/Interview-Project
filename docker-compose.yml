@@ -1,0 +1,16 @@
+version: "3"
+services:
+  backend:
+    build: ./Backend
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+  frontend:
+    build: ./Frontend
+    ports:
+      - "8080:8080"
+  db:
+    image: postgres:14
+    environment:
+      POSTGRES_PASSWORD: example
