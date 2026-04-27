@@ -10,3 +10,9 @@ variable "dockerhub_username" {
 variable "app_name" {
   default = "interview-project"
 }
+
+variable "db_password" {
+  description = "RDS database password"
+  type        = string
+  sensitive   = true
+}

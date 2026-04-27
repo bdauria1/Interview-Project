@@ -33,6 +33,10 @@ resource "aws_ecs_task_definition" "backend" {
       containerPort = 8000
       protocol      = "tcp"
     }]
+    environment = [{
+      name  = "DATABASE_URL"
+      value = "postgresql://postgres:${var.db_password}@${aws_db_instance.main.endpoint}/appdb"
+    }]
   }])
 }
 
