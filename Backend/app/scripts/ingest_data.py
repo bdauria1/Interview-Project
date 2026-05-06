@@ -204,10 +204,24 @@ if __name__ == "__main__":
     parser.add_argument("--url", help="Dataset URL (overrides DATASET_URL)")
     args = parser.parse_args()
 
+    url = args.url or DEFAULT_URL
+    print(f"Downloading data from {url}...")
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
+        "Accept": "application/json, text/plain, */*",
+    }
+    resp = requests.get(url, headers=headers, timeout=30)
+    resp.raise_for_status()
+    payload = resp.json()
+    
+    total = len(payload) if isinstance(payload, list) else 1
+    print(f"Downloaded {total} records. Ingesting...")
+
     db_gen = get_db()
     db_session = next(db_gen)
 
     try:
         results = ingest_from_url(args.url, db_session=db_session)
+        print(f"Successfully ingested {len(results)} records.")
     finally:
         db_session.close()
