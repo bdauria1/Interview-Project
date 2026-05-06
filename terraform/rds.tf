@@ -22,6 +22,13 @@ resource "aws_security_group" "rds" {
     security_groups = [aws_security_group.ecs_tasks.id]
   }
 
+  ingress {
+    from_port   = 5432
+    to_port     = 5432
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
   egress {
     from_port   = 0
     to_port     = 0
@@ -33,7 +40,7 @@ resource "aws_security_group" "rds" {
 # RDS subnet group
 resource "aws_db_subnet_group" "main" {
   name       = "${var.app_name}-db-subnet-group"
-  subnet_ids = aws_subnet.private[*].id
+  subnet_ids = module.vpc.public_subnets
 }
 
 # RDS PostgreSQL instance
@@ -52,5 +59,5 @@ resource "aws_db_instance" "main" {
   vpc_security_group_ids = [aws_security_group.rds.id]
 
   skip_final_snapshot = true
-  publicly_accessible = false
+  publicly_accessible = true
 }

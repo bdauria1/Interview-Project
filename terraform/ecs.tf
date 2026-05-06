@@ -56,6 +56,10 @@ resource "aws_ecs_task_definition" "frontend" {
       containerPort = 80
       protocol      = "tcp"
     }]
+    environment = [{
+      name  = "BACKEND_URL"
+      value = "http://${aws_lb.main.dns_name}:8000"
+    }]
   }])
 }
 
